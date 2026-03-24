@@ -20,7 +20,7 @@ public class Stop {
     private String city;      
     private String address;   
     private Integer position; 
-    private LocalTime time;     
+    private int time;     
 
     @ManyToOne
     @JoinColumn(name = "line_id")
