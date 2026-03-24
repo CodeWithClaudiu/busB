@@ -17,7 +17,7 @@ public class StopDTO {
     @NotNull(message = "Position is required")
     private Integer position;
     @NotNull(message = "Time is required")
-    private LocalTime time;
+    private int time;
 
     private Long lineId;
 }

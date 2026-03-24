@@ -18,56 +18,57 @@ import org.springframework.web.bind.annotation.RestController;
 import com.generation.bus.dto.LineDTO;
 import com.generation.bus.service.LineService;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/api/lines")
 public class LineAPI {
 
-    @Autowired
-    LineService lineService;
+   @Autowired
+    private LineService lineService;
 
-   @GetMapping
-   public List<LineDTO> findAll(){
-    return lineService.findAll();
-   }
-
-   @GetMapping("/{id}")
-    public ResponseEntity<Object> findById(@PathVariable int id) {
-        LineDTO dto = lineService.findById(id);
-        if (dto != null) {
-            return ResponseEntity.ok(dto);
-        }
-        return ResponseEntity.status(404).body("Prodotto non trovato");
+    @GetMapping
+    public List<LineDTO> findAll() {
+        return lineService.findAll();
     }
 
-     @PostMapping
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> findById(@PathVariable Long id) {
+        try {
+            LineDTO dto = lineService.findById(id);
+            return ResponseEntity.ok(dto);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body("Linea non trovata");
+        }
+    }
+
+    @PostMapping
     public ResponseEntity<Object> save(@RequestBody LineDTO dto) {
         try {
             dto = lineService.save(dto);
             return ResponseEntity.status(201).body(dto);
         } catch (ConstraintViolationException e) {
             return ResponseEntity.status(400).body(e.getMessage());
-        } 
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Object> update(@PathVariable int id, @RequestBody LineDTO dto) {
+    public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody LineDTO dto) {
         try {
+            dto.setId(id);
             dto = lineService.update(dto);
-            return ResponseEntity.status(200).body(dto);
-        }catch(ConstraintViolationException e) {
+            return ResponseEntity.ok(dto);
+        } catch (ConstraintViolationException e) {
             return ResponseEntity.status(400).body(e.getMessage());
-        } 
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body("Linea non trovata");
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         lineService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
-
-
-
-   
 }

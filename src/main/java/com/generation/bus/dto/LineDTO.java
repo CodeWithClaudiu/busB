@@ -2,16 +2,17 @@ package com.generation.bus.dto;
 
 import java.util.List;
 
-import jakarta.persistence.Entity;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-@Entity
+
 @Data
 public class LineDTO {
 
-    long id;
+    private Long id;
+    @NotBlank(message = "Name is required")
     private String name;
-    List<StopDTO> stops;
+    private List<StopDTO> stops;
 
 
 }
