@@ -1,6 +1,7 @@
 package com.generation.bus.model;
 import java.time.LocalTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,9 +18,14 @@ public class Stop {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String city;      
+    private String city;  
+
+    @Column(unique = true)
     private String address;   
+
+    @Column(unique = true)
     private Integer position; 
+
     private int time;     
 
     @ManyToOne

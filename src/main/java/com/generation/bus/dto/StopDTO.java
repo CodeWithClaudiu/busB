@@ -12,10 +12,15 @@ public class StopDTO {
     private Long id;
     @NotBlank(message = "City is required")
     private String city;
+    
+
+
     @NotBlank(message = "Address is required")
     private String address;
+    
     @NotNull(message = "Position is required")
     private Integer position;
+    
     @NotNull(message = "Time is required")
     private int time;
 
