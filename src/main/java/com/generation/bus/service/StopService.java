@@ -66,7 +66,30 @@ public class StopService {
     return stopMapper.toDto(stop);
     }
 
+
+
     public void deleteById(Long id) {
-        stopRepository.deleteById(id);
+
+       Stop stop = stopRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Stop non trovata"));
+
+    Long lineId = stop.getLine().getId();
+
+    stopRepository.delete(stop);
+    stopRepository.flush();
+
+    List<Stop> remainingStops = stopRepository.findByLineIdOrderByPositionAsc(lineId);
+        
+    //primo passo: spostare tutte le fermate rimanenti a posizioni alte per evitare conflitti di unicità
+    for (int i = 0; i < remainingStops.size(); i++) {
+        remainingStops.get(i).setPosition(100 + i);
+    }
+    stopRepository.saveAll(remainingStops);
+    stopRepository.flush();
+    //secondo passo: riassegnare le posizioni in modo ordinato
+    for (int i = 0; i < remainingStops.size(); i++) {
+        remainingStops.get(i).setPosition(i + 1);
+    }
+    stopRepository.saveAll(remainingStops);
     }
 }
