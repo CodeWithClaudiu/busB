@@ -1,11 +1,14 @@
 package com.generation.bus.service;
 
 import java.util.List;
+
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.generation.bus.dto.LineDTO;
 import com.generation.bus.mapper.LineMapper;
-
+import com.generation.bus.model.Line;
 import com.generation.bus.repository.LineRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -43,4 +46,19 @@ public class LineService {
         }
         lineRepo.deleteById(id);
     }
+
+   public List<LineDTO> findByCity(String city) { 
+   
+    if (city == null || city.trim().isEmpty()) {
+        throw new IllegalArgumentException("City name is required");
+    }
+
+    // 2. Recupero i dati dal DB (Entità)
+    List<Line> lines = lineRepo.findByStopsCity(city);
+
+    // 3. Trasformo le entità in DTO e restituisco
+    return lineMapper.toDTOs(lines);
+}
+
+
 }
