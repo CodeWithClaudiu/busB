@@ -47,6 +47,13 @@ public class LineService {
         lineRepo.deleteById(id);
     }
 
+    public List<LineDTO> findByAddress(String address){
+        if (address == null || address.isBlank()) {
+            throw new IllegalArgumentException("L'indirizzo di ricerca non può essere vuoto");
+        }
+        List<Line> lines = lineRepo.findByStopsAddress(address);
+        return lineMapper.toDTOs(lines);
+    }
    public List<LineDTO> findByCity(String city) { 
    
     if (city == null || city.trim().isEmpty()) {
