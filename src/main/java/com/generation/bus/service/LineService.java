@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.generation.bus.dto.LineDTO;
 import com.generation.bus.mapper.LineMapper;
-
+import com.generation.bus.model.Line;
 import com.generation.bus.repository.LineRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -42,5 +42,13 @@ public class LineService {
             throw new EntityNotFoundException("Line not found with id: " + id);
         }
         lineRepo.deleteById(id);
+    }
+
+    public List<LineDTO> findByAddress(String address){
+        if (address == null || address.isBlank()) {
+            throw new IllegalArgumentException("L'indirizzo di ricerca non può essere vuoto");
+        }
+        List<Line> lines = lineRepo.findByStopsAddress(address);
+        return lineMapper.toDTOs(lines);
     }
 }

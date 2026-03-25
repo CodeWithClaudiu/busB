@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.generation.bus.dto.LineDTO;
@@ -70,5 +71,15 @@ public class LineAPI {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         lineService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search/address")
+    public ResponseEntity<Object> findByAddress(@RequestParam String address){
+        try {
+            List<LineDTO> results = lineService.findByAddress(address);
+            return ResponseEntity.ok(results);
+        }catch(IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
     }
 }
