@@ -8,8 +8,9 @@ import com.generation.bus.model.Line;
 
 public interface LineRepository extends JpaRepository<Line, Long> {
 
-     List<Line> findByStopsCity(String city);
-     
-     List<Line> findByStopsAddress(String address);
+    // Trova le linee che hanno almeno una fermata in una determinata città
+    List<Line> findByStopsCity(String city);
 
+    // Trova le linee che hanno almeno una fermata in una determinata via
+    List<Line> findByStopsAddress(String address);
 }

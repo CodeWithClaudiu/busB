@@ -1,6 +1,9 @@
 package com.generation.bus.service;
 
 import java.util.List;
+
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.generation.bus.dto.LineDTO;
@@ -51,4 +54,18 @@ public class LineService {
         List<Line> lines = lineRepo.findByStopsAddress(address);
         return lineMapper.toDTOs(lines);
     }
+   public List<LineDTO> findByCity(String city) { 
+   
+    if (city == null || city.trim().isEmpty()) {
+        throw new IllegalArgumentException("City name is required");
+    }
+
+    // 2. Recupero i dati dal DB (Entità)
+    List<Line> lines = lineRepo.findByStopsCity(city);
+
+    // 3. Trasformo le entità in DTO e restituisco
+    return lineMapper.toDTOs(lines);
+}
+
+
 }
