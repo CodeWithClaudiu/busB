@@ -8,10 +8,18 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
 
 @Entity
 @Data
+@Table(
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"line_id", "position"}),
+        @UniqueConstraint(columnNames = {"line_id", "address"})
+    }
+)
 public class Stop {
     
     @Id
@@ -20,10 +28,9 @@ public class Stop {
 
     private String city;  
 
-    @Column(unique = true)
+    
     private String address;   
-
-    @Column(unique = true)
+    
     private Integer position; 
 
     private int time;     
