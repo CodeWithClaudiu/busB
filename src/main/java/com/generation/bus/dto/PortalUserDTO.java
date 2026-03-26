@@ -12,6 +12,5 @@ public class PortalUserDTO {
     private String username;
     private String dob;
     private String email; 
-    private String password;
     private Role role;
 }
