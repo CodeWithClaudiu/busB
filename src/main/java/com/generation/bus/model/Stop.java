@@ -33,7 +33,7 @@ public class Stop {
     
     private Integer position; 
 
-    private int time;     
+    private int time;
 
     @ManyToOne
     @JoinColumn(name = "line_id")
