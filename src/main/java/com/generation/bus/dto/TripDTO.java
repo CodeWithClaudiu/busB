@@ -1,5 +1,6 @@
 package com.generation.bus.dto;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -19,6 +20,9 @@ public class TripDTO
     private DayType dayType;
 
     private Season season;
+
+    private LocalDate date;
+
 
     private long lineId;
     private List<StopDTO> stops;

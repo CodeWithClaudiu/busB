@@ -1,5 +1,6 @@
 package com.generation.bus.model;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 import jakarta.persistence.Entity;
@@ -24,6 +25,9 @@ public class Trip
     private DayType dayType;
 
     private Season season;
+
+    private LocalDate date;
+
 
     @ManyToOne
     @JoinColumn(name = "line_id")
