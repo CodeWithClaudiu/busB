@@ -23,6 +23,8 @@ public class TripDTO
 
     private LocalDate date;
 
+    private double trafficMultiplier = 1.0;
+
 
     private long lineId;
     private List<StopDTO> stops;
