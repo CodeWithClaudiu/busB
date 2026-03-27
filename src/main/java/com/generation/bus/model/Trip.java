@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,12 +23,16 @@ public class Trip
     private Long id;
 
     private LocalTime start;
-
+    
+    @Enumerated(EnumType.STRING)
     private DayType dayType;
 
+    @Enumerated(EnumType.STRING)
     private Season season;
 
     private LocalDate date;
+
+    private double trafficMultiplier = 1.0;
 
 
     @ManyToOne

@@ -52,17 +52,46 @@ public class TripService {
         Trip trip = tripRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Trip not found with id: " + id));
 
+            // Validazione
+        if (dto.getTrafficMultiplier() < 0) {
+            throw new IllegalArgumentException("The traffic multiplier cannot be negative");
+        }
+
         trip.setStart(dto.getStart());
         trip.setDayType(dto.getDayType());
         trip.setSeason(dto.getSeason());
+        trip.setDate(dto.getDate());
+        trip.setTrafficMultiplier(dto.getTrafficMultiplier());
 
         trip.setLine(
             lineRepo.findById(dto.getLineId())
                 .orElseThrow(() -> new EntityNotFoundException("Line not found"))
         );
         trip = tripRepository.save(trip);
-        return tripMapper.toDTO(trip);
+        return getEnrichedDTO(trip); // Usiamo il metodo con il calcolo
     }
+
+    // --- METODO CHE APPLICA IL MOLTIPLICATORE AI MINUTI ---
+    private TripDTO getEnrichedDTO(Trip trip) {
+        // 1. Il mapper crea il DTO con i dati base
+        TripDTO dto = tripMapper.toDTO(trip);
+
+        // 2. Se ci sono fermate, ricalcoliamo il campo 'time' (int)
+        if (trip.getLine() != null && trip.getLine().getStops() != null && dto.getStops() != null) {
+            for (int i = 0; i < trip.getLine().getStops().size(); i++) {
+                // Prendiamo i minuti originali dall'entità (es. 20)
+                int minutiBase = trip.getLine().getStops().get(i).getTime();
+                
+                // Calcoliamo i nuovi minuti: 20 * (1 + 0.1) = 22
+                int minutiAggiornati = (int) Math.round(minutiBase * (1 + trip.getTrafficMultiplier()));
+
+                // Sovrascriviamo il campo 'time' nel DTO
+                dto.getStops().get(i).setTime(minutiAggiornati);
+            }
+        }
+        return dto;
+    }
+
     public void delete(Long id){
         if(!tripRepository.existsById(id)){
             throw new EntityNotFoundException("Trip not found with id: " + id); 
