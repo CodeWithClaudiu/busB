@@ -22,7 +22,7 @@ import jakarta.validation.ConstraintViolationException;
 
 @RestController
 @RequestMapping("/api/stops")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 public class StopAPI {
     @Autowired
     private StopService service;

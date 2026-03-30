@@ -21,7 +21,7 @@ import com.generation.bus.service.PortalUserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/users")
 public class PortalUserAPI {
