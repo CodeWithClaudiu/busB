@@ -68,29 +68,33 @@ public class TripService {
                 .orElseThrow(() -> new EntityNotFoundException("Line not found"))
         );
         trip = tripRepository.save(trip);
-        return getEnrichedDTO(trip); // Usiamo il metodo con il calcolo
+        return updateAndSaveTrip(trip); // Usiamo il metodo con il calcolo
     }
 
-    // --- METODO CHE APPLICA IL MOLTIPLICATORE AI MINUTI ---
-    private TripDTO getEnrichedDTO(Trip trip) {
-        // 1. Il mapper crea il DTO con i dati base
-        TripDTO dto = tripMapper.toDTO(trip);
+private TripDTO updateAndSaveTrip(Trip trip) {
+    
+    // 1. Verifichiamo che i dati esistano nell'Entity
+    if (trip.getLine() != null && trip.getLine().getStops() != null) {
+        
+        for (int i = 0; i < trip.getLine().getStops().size(); i++) {
+            // Prendiamo la fermata direttamente dall'Entity
+            var stop = trip.getLine().getStops().get(i);
+            
+            int minutiBase = stop.getTime();
+            int minutiAggiornati = (int) Math.round(minutiBase * (1 + trip.getTrafficMultiplier()));
 
-        // 2. Se ci sono fermate, ricalcoliamo il campo 'time' (int)
-        if (trip.getLine() != null && trip.getLine().getStops() != null && dto.getStops() != null) {
-            for (int i = 0; i < trip.getLine().getStops().size(); i++) {
-                // Prendiamo i minuti originali dall'entità (es. 20)
-                int minutiBase = trip.getLine().getStops().get(i).getTime();
-                
-                // Calcoliamo i nuovi minuti: 20 * (1 + 0.1) = 22
-                int minutiAggiornati = (int) Math.round(minutiBase * (1 + trip.getTrafficMultiplier()));
-
-                // Sovrascriviamo il campo 'time' nel DTO
-                dto.getStops().get(i).setTime(minutiAggiornati);
-            }
+            // 2. MODIFICA FONDAMENTALE: Settiamo il valore nell'ENTITY (non nel DTO!)
+            // Questo cambia l'oggetto che Spring "conosce" come riga del database
+            stop.setTime(minutiAggiornati);
         }
-        return dto;
+
+        // 3. PERSISTENZA: Salviamo l'intero oggetto trip (con le fermate aggiornate) nel DB
+        tripRepository.save(trip);
     }
+
+    // 4. Infine, trasformiamo l'entity GIÀ AGGIORNATA in DTO per restituirla
+    return tripMapper.toDTO(trip);
+}
 
     public void delete(Long id){
         if(!tripRepository.existsById(id)){
