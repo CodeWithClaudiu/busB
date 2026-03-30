@@ -75,31 +75,10 @@ public class LineAPI {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/search/address")
-    public ResponseEntity<Object> findByAddress(@RequestParam String address){
-        try {
-            List<LineDTO> results = lineService.findByAddress(address);
-            return ResponseEntity.ok(results);
-        }catch(IllegalArgumentException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
-        }
-    }
-        @GetMapping("/search/city")
-        public ResponseEntity<Object> findByCity(@RequestParam String city) {
-        try {
-            List<LineDTO> dtos = lineService.findByCity(city);
-            return ResponseEntity.ok(dtos);
-        } catch (IllegalArgumentException e) {
-            // Se il nome città è vuoto o null (come abbiamo impostato nel Service)
-            return ResponseEntity.status(400).body(e.getMessage());
-        } catch (EntityNotFoundException e) {
-            // Se decidi di lanciare questa eccezione quando non trovi linee
-            return ResponseEntity.status(404).body("Nessuna linea trovata per questa città");
-        } catch (Exception e) {
-            // Per qualsiasi altro errore imprevisto
-            return ResponseEntity.status(500).body("Errore interno del server");
-        }
-}
+    @GetMapping("/search")
+    public List<LineDTO> searchByCityOrAddress(@RequestParam String query) {
+        return lineService.searchByCityOrAddress(query);
+    }   
    
     
 }
