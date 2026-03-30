@@ -13,6 +13,7 @@ import com.generation.bus.repository.LineRepository;
 import com.generation.bus.repository.StopRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 @Service
@@ -37,15 +38,24 @@ public class StopService {
         return stopMapper.toDto(stop);
     }
 
+    // INSERIMENTO CON SHIFT
+    @Transactional
     public StopDTO save(@Valid StopDTO dto) {
-    Stop stop = stopMapper.toEntity(dto);
-    stop.setLine(
-        lineRepo.findById(dto.getLineId())
-            .orElseThrow(() -> new EntityNotFoundException("Line not found"))
-    );
+        // A. Sposta le fermate esistenti in "parcheggio" negativo
+        stopRepository.shiftToNegative(dto.getLineId(), dto.getPosition());
+        stopRepository.flush(); // Applica subito
 
-    stop = stopRepository.save(stop);
-    return stopMapper.toDto(stop);
+        // B. Riporta le fermate in positivo scalate di 1
+        stopRepository.shiftFromNegativeToPositive(dto.getLineId());
+        stopRepository.flush(); // Libera definitivamente le posizioni originali
+
+        // C. Ora la posizione (es. 2) è matematicamente libera nel DB. Procedi al salvataggio.
+        Stop stop = stopMapper.toEntity(dto);
+        stop.setLine(lineRepo.findById(dto.getLineId())
+                .orElseThrow(() -> new EntityNotFoundException("Line not found")));
+
+        stop = stopRepository.save(stop);
+        return stopMapper.toDto(stop);
     }
 
     public StopDTO update(Long id, @Valid StopDTO dto) {
@@ -57,39 +67,28 @@ public class StopService {
         stop.setPosition(dto.getPosition());
         stop.setTime(dto.getTime());
 
-        stop.setLine(
-            lineRepo.findById(dto.getLineId())
-                .orElseThrow(() -> new EntityNotFoundException("Line not found"))
-    );
+        stop.setLine(lineRepo.findById(dto.getLineId())
+                .orElseThrow(() -> new EntityNotFoundException("Line not found")));
 
-    stop = stopRepository.save(stop);
-    return stopMapper.toDto(stop);
+        stop = stopRepository.save(stop);
+        return stopMapper.toDto(stop);
     }
 
-
-
+    // CANCELLAZIONE CON SHIFT (CHIUDI IL BUCO)
     public void deleteById(Long id) {
+        Stop stop = stopRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Stop non trovata"));
 
-       Stop stop = stopRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("Stop non trovata"));
+        Long lineId = stop.getLine().getId();
+        Integer posDeleted = stop.getPosition();
 
-    Long lineId = stop.getLine().getId();
-
-    stopRepository.delete(stop);
-    stopRepository.flush();
-
-    List<Stop> remainingStops = stopRepository.findByLineIdOrderByPositionAsc(lineId);
+        // 1. Eliminiamo la fermata
+        stopRepository.delete(stop);
         
-    //primo passo: spostare tutte le fermate rimanenti a posizioni alte per evitare conflitti di unicità
-    for (int i = 0; i < remainingStops.size(); i++) {
-        remainingStops.get(i).setPosition(100 + i);
-    }
-    stopRepository.saveAll(remainingStops);
-    stopRepository.flush();
-    //secondo passo: riassegnare le posizioni in modo ordinato
-    for (int i = 0; i < remainingStops.size(); i++) {
-        remainingStops.get(i).setPosition(i + 1);
-    }
-    stopRepository.saveAll(remainingStops);
+        // Forza l'eliminazione prima di scalare le altre
+        stopRepository.flush(); 
+
+        // 2. Scaliamo indietro tutte le fermate successive per chiudere il buco
+        stopRepository.shiftPositionsBackward(lineId, posDeleted);
     }
 }
