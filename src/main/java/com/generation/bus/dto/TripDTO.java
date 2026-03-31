@@ -29,4 +29,6 @@ public class TripDTO
     private long lineId;
     private List<StopDTO> stops;
 
+    private List<TicketDTO> tickets;
+
 }
