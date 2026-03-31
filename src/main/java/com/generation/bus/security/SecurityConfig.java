@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/stops/**").permitAll()
 
                 // tutto il resto protetto
-                .anyRequest().permitAll()
+                .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

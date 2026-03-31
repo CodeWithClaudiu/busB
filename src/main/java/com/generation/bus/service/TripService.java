@@ -71,7 +71,7 @@ public class TripService {
         return updateAndSaveTrip(trip); // Usiamo il metodo con il calcolo
     }
 
-private TripDTO updateAndSaveTrip(Trip trip) {
+    private TripDTO updateAndSaveTrip(Trip trip) {
     
     // 1. Verifichiamo che i dati esistano nell'Entity
     if (trip.getLine() != null && trip.getLine().getStops() != null) {
