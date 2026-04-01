@@ -25,6 +25,10 @@ public class Ticket {
     @JoinColumn(name = "portalUser_id")
     private PortalUser portalUser;
 
+    @ManyToOne
+    @JoinColumn(name = "trip_id")
+    private Trip trip;
+
   
 
 }

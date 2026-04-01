@@ -9,6 +9,9 @@ public class TicketDTO {
     private String date;
     private int hour;
     private Long portalUserId;
+    private double price;
+    private Long tripId;
+
 
 
 }
