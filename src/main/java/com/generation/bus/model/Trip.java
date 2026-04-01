@@ -42,5 +42,8 @@ public class Trip
     @JoinColumn(name = "line_id")
     private Line line;
 
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
+    private List<Ticket> tickets;
+
     
 }
