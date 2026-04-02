@@ -7,6 +7,6 @@ public class TestHash {
 
         PasswordHasher hasher = new PasswordHasher();
 
-        System.out.println(hasher.toMD5("bryton")); 
+        System.out.println(hasher.toMD5("bigliettaio")); 
     }
 }

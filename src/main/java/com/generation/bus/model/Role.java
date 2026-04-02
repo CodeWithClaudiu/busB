@@ -1,5 +1,6 @@
 package com.generation.bus.model;
 
 public enum Role {
-    ADMIN,BIGLIETTAIO;
+    ADMIN,
+    BIGLIETTAIO;
 }

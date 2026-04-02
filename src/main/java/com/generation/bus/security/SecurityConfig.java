@@ -14,7 +14,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-     private final CorsConfigurationSource corsConfigurationSource;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthFilter;
@@ -32,7 +32,7 @@ public class SecurityConfig {
 
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // login admin
+                // login pubblico
                 .requestMatchers("/api/users/login").permitAll()
 
                 // rotte pubbliche
@@ -40,7 +40,25 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/trips/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/stops/**").permitAll()
 
-                // tutto il resto protetto
+                // gestione utenti: solo ADMIN
+                .requestMatchers("/api/users/**").hasRole("ADMIN")
+
+                // linee: modifiche solo ADMIN
+                .requestMatchers(HttpMethod.POST, "/api/lines/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/lines/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/lines/**").hasRole("ADMIN")
+
+                // trip: modifiche solo ADMIN
+                .requestMatchers(HttpMethod.POST, "/api/trips/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/trips/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/trips/**").hasRole("ADMIN")
+
+                // stop: modifiche solo ADMIN
+                .requestMatchers(HttpMethod.POST, "/api/stops/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/stops/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/stops/**").hasRole("ADMIN")
+
+                // tutto il resto richiede login
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -49,3 +67,4 @@ public class SecurityConfig {
         return http.build();
     }
 }
+
