@@ -14,7 +14,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    private final CorsConfigurationSource corsConfigurationSource;
+     private final CorsConfigurationSource corsConfigurationSource;
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthFilter;
@@ -32,33 +32,26 @@ public class SecurityConfig {
 
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // login pubblico
                 .requestMatchers("/api/users/login").permitAll()
 
-                // rotte pubbliche
                 .requestMatchers(HttpMethod.GET, "/api/lines/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/trips/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/stops/**").permitAll()
 
-                // gestione utenti: solo ADMIN
-                .requestMatchers("/api/users/**").hasRole("ADMIN")
+                .requestMatchers("/api/users/**").hasAuthority("ADMIN")
 
-                // linee: modifiche solo ADMIN
-                .requestMatchers(HttpMethod.POST, "/api/lines/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/lines/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/lines/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/lines/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/lines/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/lines/**").hasAuthority("ADMIN")
 
-                // trip: modifiche solo ADMIN
-                .requestMatchers(HttpMethod.POST, "/api/trips/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/trips/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/trips/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/trips/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/trips/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/trips/**").hasAuthority("ADMIN")
 
-                // stop: modifiche solo ADMIN
-                .requestMatchers(HttpMethod.POST, "/api/stops/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/stops/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/stops/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/stops/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/stops/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/stops/**").hasAuthority("ADMIN")
 
-                // tutto il resto richiede login
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
