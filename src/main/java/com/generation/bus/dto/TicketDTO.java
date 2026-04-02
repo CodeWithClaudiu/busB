@@ -6,9 +6,7 @@ import lombok.Data;
 public class TicketDTO {
 
     private Long id;
-    private String date;
-    private int hour;
-    private Long portalUserId;
-
-
+    private Long tripId;
+    private Long userId;
+    private LocalDate date;
 }

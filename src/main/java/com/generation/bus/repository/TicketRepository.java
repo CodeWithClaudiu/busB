@@ -6,5 +6,8 @@ import com.generation.bus.model.Ticket;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long>{
 
+    / Permette al bigliettaio di vedere solo i suoi ticket emessi
+    List<Ticket> findByPortalUserId(Long userId);
+
 
 }
