@@ -19,78 +19,50 @@ import jakarta.persistence.EntityNotFoundException;
 @Validated
 public class TicketService {
 
+@Autowired private TicketRepository ticketRepo;
+    @Autowired private TripRepository tripRepo;
+    @Autowired private PortalUserRepository userRepo;
 
-    @Autowired
-    TicketRepository ticketRepo;
-
-    @Autowired
-    TicketMapper ticketMapper;
-
-
-    @Autowired
-    PortalUserService portalUserService;
-
-    private static final double FIXED_PRICE = 2.00;
-    private static final int VALIDITY_MINUTES = 90;
-
-    public List<TicketDTO> findAll() {
-        return ticketMapper.toDTOs(ticketRepo.findAll());
+    // GET ALL: Per l'ADMIN (this.ticketService.getAll())
+    @GetMapping
+    public List<TicketDTO> getAll() {
+        return ticketRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    public TicketDTO findById(Long id) {
-        Ticket t = ticketRepo.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Ticket non trovato con ID: " + id));
-        return ticketMapper.toDTO(t);
+    // GET BY USER: Per il BIGLIETTAIO (this.ticketService.getByUser(id))
+    @GetMapping("/user/{userId}")
+    public List<TicketDTO> getByUser(@PathVariable Long userId) {
+        return ticketRepo.findByPortalUserId(userId).stream()
+                .map(this::convertToDTO).collect(Collectors.toList());
     }
-    public TicketDTO save(TicketDTO dto) {
-            Ticket ticket = ticketMapper.toEntity(dto);
-            ticket.setPrice(FIXED_PRICE); // Forza sempre i 2 euro
-            
-            LocalDateTime now = LocalDateTime.now();
-            ticket.setDate(now.toLocalDate()); // Imposta data di oggi
-            ticket.setHour(now.getHour());     // Imposta ora attuale
-            
-            return ticketMapper.toDTO(ticketRepo.save(ticket));
-        }
-    public TicketDTO update(Long id, TicketDTO dto) {
-        // 1. Recuperiamo il ticket esistente (se non c'è, lancia l'eccezione)
-        Ticket existing = ticketRepo.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Impossibile aggiornare: Ticket non trovato"));
+
+    // POST: Creazione (this.ticketService.create(data))
+    @PostMapping
+    public TicketDTO create(@RequestBody TicketDTO dto) {
+        Ticket t = new Ticket();
+        t.setDate(dto.getDate());
+        t.setTrip(tripRepo.findById(dto.getTripId()).orElse(null));
+        t.setPortalUser(userRepo.findById(dto.getUserId()).orElse(null));
         
-        // 2. Mappiamo il DTO in una nuova entità per l'aggiornamento
-        Ticket updated = ticketMapper.toEntity(dto);
-        
-        // 3. USIAMO 'existing' per proteggere i dati che non devono cambiare
-        updated.setId(existing.getId());         
-        updated.setDate(existing.getDate());      
-        updated.setHour(existing.getHour());       
-        updated.setPrice(FIXED_PRICE);             
-
-        return ticketMapper.toDTO(ticketRepo.save(updated));
+        Ticket saved = ticketRepo.save(t);
+        return convertToDTO(saved);
     }
 
-    public void delete(Long id) {
-        if (!ticketRepo.existsById(id)) {
-            throw new EntityNotFoundException("Impossibile eliminare: Ticket non trovato");
-        }
+    // DELETE: (this.ticketService.delete(id))
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
         ticketRepo.deleteById(id);
     }
 
-    // --- METODO PER VERIFICARE LA VALIDITÀ ---
-    public boolean isTicketValid(Long id) {
-        Ticket t = ticketRepo.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Ticket non trovato"));
-
-        // Ricostruiamo il momento di emissione (Data + Ora:00)
-        LocalDateTime issuedAt = LocalDateTime.of(t.getDate(), LocalTime.of(t.getHour(), 0));
-        
-        // Calcoliamo la scadenza aggiungendo i 90 minuti della costante
-        LocalDateTime expiryTime = issuedAt.plusMinutes(VALIDITY_MINUTES);
-
-        // Il biglietto è valido se "adesso" è prima della scadenza
-        return LocalDateTime.now().isBefore(expiryTime);
+    // Metodo helper per mappare l'entità nel DTO che il frontend si aspetta
+    private TicketDTO convertToDTO(Ticket t) {
+        TicketDTO dto = new TicketDTO();
+        dto.setId(t.getId());
+        dto.setDate(t.getDate());
+        dto.setTripId(t.getTrip() != null ? t.getTrip().getId() : null);
+        dto.setUserId(t.getPortalUser() != null ? t.getPortalUser().getId() : null);
+        return dto;
     }
-
 
 }
 

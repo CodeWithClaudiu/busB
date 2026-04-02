@@ -26,52 +26,31 @@ import jakarta.validation.ConstraintViolationException;
 @CrossOrigin(origins = "http://localhost:4200")
 public class TicketAPI {
 
-    @Autowired
-    TicketService ticketService;
+    @Autowired private TicketService ticketService;
 
-     @GetMapping
-    public List<TicketDTO> findAll() {
-        return ticketService.findAll();
+    // GET ALL: Per l'ADMIN (this.ticketService.getAll())
+    @GetMapping
+    public List<TicketDTO> getAll() {
+        return ticketService.getAll();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Object> findById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(ticketService.findById(id));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
-        }
+    // GET BY USER: Per il BIGLIETTAIO (this.ticketService.getByUser(id))
+    @GetMapping("/user/{userId}")
+    public List<TicketDTO> getByUser(@PathVariable Long userId) {
+        return ticketService.getByUser(userId);
     }
 
+    // POST: Creazione (this.ticketService.create(data))
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody TicketDTO dto) {
-        try {
-            dto = ticketService.save(dto);
-            return ResponseEntity.status(201).body(dto);
-        } catch (ConstraintViolationException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
-        }
+    public TicketDTO create(@RequestBody TicketDTO dto) {
+        return ticketService.create(dto);
     }
 
-        @PutMapping("/{id}")
-    public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody TicketDTO dto) {
-        try {
-            dto = ticketService.update(id, dto);
-            return ResponseEntity.ok(dto);
-        } catch (ConstraintViolationException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
-        }
-    }
-
-       @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    // DELETE: (this.ticketService.delete(id))
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
         ticketService.delete(id);
-        return ResponseEntity.noContent().build();
     }
-
-
 
 
 
