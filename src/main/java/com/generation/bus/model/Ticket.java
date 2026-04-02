@@ -16,7 +16,7 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDat date;
+    private LocalDate date;
 
     // Relazione con la corsa (Trip)
     @ManyToOne
