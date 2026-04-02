@@ -54,5 +54,6 @@ public class PortalUser {
     @Column(nullable = false)
     private Role role;
 
- 
+    @OneToMany(mappedBy = "portalUser", cascade = CascadeType.ALL)
+    private List<Ticket> tickets;
 }
