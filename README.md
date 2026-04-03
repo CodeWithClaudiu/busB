@@ -21,7 +21,7 @@ offrendo agli utenti informazioni in tempo reale e geolocalizzazione GPS.
 ## 🛠️ Tecnologie utilizzate
 - Java / Spring Boot
 - Spring Security + JWT
-- (aggiungi qui database usato, es. PostgreSQL/MySQL)
+- Database utulizzato MySQL
 
 ## 📊 Data Model
 Le entità principali sono:
